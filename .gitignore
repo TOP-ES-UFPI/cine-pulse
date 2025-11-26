@@ -1,4 +1,4 @@
-Python
+#Python
 
 pycache/
 *.py[cod]
@@ -22,31 +22,30 @@ wheels/
 .installed.cfg
 *.egg
 
-Ambientes Virtuais (Virtual Envs)
-
+# Virtual Environments
 venv/
 .env
 .venv
 env/
 ENV/
 
-Jupyter Notebooks
+# Jupyter Notebooks
 
 .ipynb_checkpoints
 
-Modelos Treinados
+# Modelos Treinados
 
 *.pkl
 
-Logs
+# Logs
 
 *.log
 
-Docker
+# Docker
 
 .dockerignore
 
-IDEs
+# IDEs
 
 .vscode/
 .idea/
