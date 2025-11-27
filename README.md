@@ -32,12 +32,12 @@ O sistema segue uma arquitetura de microsserviços simplificada:
 
 1. Construa a imagem:
    ```bash
-   docker build \-t cinepulse .
+   docker build -t cinepulse .
    ```
 
 3. Execute o container (injetando as variáveis de ambiente):
    ```bash
-   docker run \-p 8000:8000 \--env-file .env cinepulse
+   docker run -p 8000:8000 --env-file .env cinepulse
    ```
 
 5. Acesse: http://localhost:8000
@@ -53,12 +53,12 @@ O sistema segue uma arquitetura de microsserviços simplificada:
 
 3. Instale as dependências:
    ```bash
-   pip install \-r requirements.txt
+   pip install -r requirements.txt
    ```
 
 5. Execute o servidor:
    ```bash
-   uvicorn src.app:app \--reload
+   uvicorn src.app:app --reload
    ```
 
 ## **🧪 Testes e CI**
