@@ -61,12 +61,20 @@ O sistema segue uma arquitetura de microsserviços simplificada:
    uvicorn src.app:app \--reload
    ```
 
-## **🧪 Testes e Qualidade**
+## **🧪 Testes e CI**
 
 O projeto possui testes automatizados para garantir a integridade da API.  
-Para rodar os testes: 
+### **Testes Automatizados**
+
+Utilizamos pytest com a técnica de **Mocks** para isolar a lógica de negócio e garantir testes rápidos e determinísticos, sem depender de APIs externas.  
+Para rodar os testes localmente:  
 ```bash
-pytest tests/
+pytest tests/ \-v
 ```
 
-O pipeline de **Integração Contínua (CI)** via GitHub Actions executa esses testes automaticamente a cada *push* na branch principal.
+### **Integração Contínua (GitHub Actions)**
+
+O pipeline de CI é acionado a cada *push* ou *pull request*. Ele executa:
+
+1. **Linting:** Verificação de estilo de código (PEP8) com flake8.  
+2. **Testes Unitários e de Integração:** Validação completa da API e dos clientes.
