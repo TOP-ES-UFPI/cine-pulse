@@ -28,6 +28,22 @@ O sistema segue uma arquitetura de microsserviços simplificada:
 * Docker (Recomendado) **OU** Python 3.9+  
 * Chaves de API (TMDB e Google Gemini) configuradas no arquivo .env.
 
+#### **🔑 Configuração das Chaves (PASSO ESSENCIAL)**
+
+Antes de rodar pela primeira vez, você deve criar um arquivo chamado **.env** na **raiz do projeto** e preenchê-lo com suas chaves.
+
+1. Crie um arquivo chamado **.env**.  
+2. Cole suas chaves no formato abaixo (sem aspas) no .env:
+   ```bash
+   TMDB_API_KEY="SUA_CHAVE_DO_TMDB"  
+   GEMINI_API_KEY="SUA_CHAVE_DO_GOOGLE_GEMINI"
+   ```
+ 
+**Instruções para Obter as Chaves:**
+
+* **TMDB (The Movie Database):** Crie uma conta em themoviedb.org, vá em Configurações > API e crie uma chave de Desenvolvedor (v3 API Key).  
+* **GEMINI (Google AI Studio):** Obtenha sua chave de API gratuita no [Google AI Studio](https://ai.google.dev/gemini-api/docs/api-key) ou [Google AI Studio: create API key].
+
 ### **Opção A: Usando Docker (Recomendado)**
 
 1. Construa a imagem:
