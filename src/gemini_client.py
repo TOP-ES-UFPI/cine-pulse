@@ -7,7 +7,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 def gerar_resumo_ia(reviews_ingles, nome_filme):
     """
-    Envia as reviews em inglês para o Gemini e pede um resumo em Português.
+    Envia as reviews em inglês para o Gemini 1.5 Flash e pede um resumo 
+    conciso e impessoal em Português.
     """
     if not GEMINI_API_KEY:
         return "Erro: Chave do Gemini não configurada."
@@ -16,30 +17,34 @@ def gerar_resumo_ia(reviews_ingles, nome_filme):
         return "Não há reviews suficientes para gerar um resumo."
 
     try:
-        # Configura o modelo
+        # Configura a chave
         genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
-        # Prepara o prompt (texto limitado a 10 reviews para não estourar tokens)
-        reviews_concatenadas = "\n\n".join(reviews_ingles[:10])
+        # Limita o contexto para não gastar tokens demais
+        reviews_concatenadas = "\n\n".join(reviews_ingles[:15]) 
 
+        # --- O SEGREDO ESTÁ AQUI: PROMPT RESTRITIVO ---
         prompt = f"""
-        Atue como um crítico de cinema do sistema CinePulse.
-        Analise as seguintes opiniões de usuários (que estão em inglês) sobre o filme "{nome_filme}".
+        Analise as seguintes opiniões de usuários (extraídas do TMDB) sobre o filme "{nome_filme}".
         
-        --- INÍCIO DAS REVIEWS ---
+        --- DADOS (REVIEWS EM INGLÊS) ---
         {reviews_concatenadas}
-        --- FIM DAS REVIEWS ---
+        --- FIM DOS DADOS ---
         
-        Tarefa:
-        1. Identifique o sentimento geral (se amaram ou odiaram).
-        2. Liste os principais pontos positivos mencionados.
-        3. Liste os principais pontos negativos mencionados.
-        4. Escreva um veredito final resumido em um parágrafo em PORTUGUÊS DO BRASIL.
+        Instruções OBRIGATÓRIAS:
+        1. Escreva um único parágrafo de no máximo 8 linhas.
+        2. O tom deve ser IMPESSOAL e JORNALÍSTICO (Nunca use "eu", "nós", "nosso", "crítico").
+        3. Não invente fatos. Baseie-se APENAS no texto acima.
+        4. Sintetize o consenso geral, destacando pontos fortes e fracos recorrentes.
+        5. Finalize OBRIGATORIAMENTE com a seguinte frase exata: "(Resumo gerado por IA com base em análises do site TMDB)."
+        
+        Responda em Português do Brasil.
         """
 
-        print("🤖 Perguntando ao Gemini...")
+        print(f"🤖 Enviando para Gemini 2.5 Flash...")
         response = model.generate_content(prompt)
+        
         return response.text
 
     except Exception as e:
