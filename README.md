@@ -19,7 +19,7 @@ O sistema segue uma arquitetura de microsserviços simplificada:
 2. **API Gateway:** FastAPI orquestra as chamadas.  
 3. **Coletor:** Módulo de integração com TMDB.  
 4. **Inference Engine:** Carrega modelos .joblib para predição local.  
-5. **GenAI Service:** Conecta com Google Gemini 1.5 Flash.
+5. **GenAI Service:** Conecta com Google Gemini 2.5 Flash.
 
 ## **📦 Como Rodar**
 
