@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 from src.tmdb_client import buscar_id_filme
 from src.gemini_client import gerar_resumo_ia
