@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CinePulse AI</title>
+    <!-- Importa Tailwind CSS (Estilo automático) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonte bonita -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(to right, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Container Principal -->
+    <div class="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
+        
+        <!-- Cabeçalho -->
+        <div class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold mb-2 gradient-text">CinePulse</h1>
+            <p class="text-gray-400 text-lg">Análise de Sentimento</p>
+        </div>
+
+        <!-- Área de Busca -->
+        <div class="flex gap-2 mb-8">
+            <input type="text" id="movieInput" placeholder="Digite o nome do filme (ex: Duna Parte 2)..." 
+                class="w-full p-4 rounded-xl bg-gray-700 border-2 border-gray-600 focus:border-pink-500 focus:outline-none text-white text-lg transition-all"
+                onkeypress="handleEnter(event)">
+            <button onclick="analisarFilme()" id="btnAnalisar"
+                class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-xl transition-all transform hover:scale-105">
+                Analisar
+            </button>
+        </div>
+
+        <!-- Loading (Escondido inicialmente) -->
+        <div id="loading" class="hidden text-center py-10">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
+            <p class="text-gray-300 animate-pulse">Consultando TMDB, rodando Modelo Local e chamando Gemini...</p>
+        </div>
+
+        <!-- Resultados (Escondido inicialmente) -->
+        <div id="results" class="hidden space-y-6 animate-fade-in">
+            
+            <!-- Título do Filme Encontrado -->
+            <div class="border-b border-gray-700 pb-4">
+                <h2 id="resTitle" class="text-3xl font-bold text-white">Nome do Filme</h2>
+            </div>
+
+            <!-- Grid de Métricas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Card do Modelo Local -->
+                <div class="bg-gray-700 p-6 rounded-xl border border-gray-600">
+                    <h3 class="text-gray-400 text-sm uppercase tracking-wider mb-2">Aprovação (Modelo Local)</h3>
+                    <div class="flex items-end gap-2">
+                        <span id="scoreVal" class="text-5xl font-bold text-green-400">0%</span>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-400">
+                        Baseado em <span id="countPos" class="text-white font-bold">0</span> opiniões.
+                    </div>
+                </div>
+
+                <!-- Card de Stats -->
+                <div class="bg-gray-700 p-6 rounded-xl border border-gray-600 flex flex-col justify-center">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-green-400">Positivas</span>
+                        <span id="valPos" class="font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-red-400">Negativas</span>
+                        <span id="valNeg" class="font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumo IA -->
+            <div class="bg-gray-700 p-6 rounded-xl border border-purple-500/30 shadow-lg shadow-purple-900/20">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-2xl">✨</span>
+                    <h3 class="text-purple-300 font-bold text-lg">Resumo Inteligente (Gemini)</h3>
+                </div>
+                <p id="aiSummary" class="text-gray-200 leading-relaxed text-justify">
+                    O resumo gerado pela inteligência artificial aparecerá aqui...
+                </p>
+            </div>
+        </div>
+
+        <!-- Erro -->
+        <div id="error" class="hidden mt-6 p-4 bg-red-900/50 border border-red-500 rounded-lg text-red-200 text-center">
+        </div>
+
+    </div>
+
+    <!-- Script de Lógica -->
+    <script>
+        function handleEnter(e) {
+            if (e.key === 'Enter') analisarFilme();
+        }
+
+        async function analisarFilme() {
+            const filme = document.getElementById('movieInput').value;
+            if (!filme) return;
+
+            // UI State: Loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('btnAnalisar').disabled = true;
+            document.getElementById('btnAnalisar').classList.add('opacity-50');
+
+            try {
+                const response = await fetch('/analisar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filme: filme })
+                });
+
+                if (!response.ok) throw new Error('Filme não encontrado ou erro na API.');
+
+                const data = await response.json();
+
+                // Preencher dados
+                document.getElementById('resTitle').innerText = data.filme;
+                
+                // Score
+                const score = data.analise_quantitativa.nota_media;
+                const scoreEl = document.getElementById('scoreVal');
+                scoreEl.innerText = score + '%';
+                
+                // Muda cor do score
+                if (score >= 70) scoreEl.className = "text-5xl font-bold text-green-400";
+                else if (score >= 40) scoreEl.className = "text-5xl font-bold text-yellow-400";
+                else scoreEl.className = "text-5xl font-bold text-red-400";
+
+                document.getElementById('countPos').innerText = data.analise_quantitativa.positivos + data.analise_quantitativa.negativos;
+                document.getElementById('valPos').innerText = data.analise_quantitativa.positivos;
+                document.getElementById('valNeg').innerText = data.analise_quantitativa.negativos;
+                
+                // Resumo IA (Quebras de linha)
+                document.getElementById('aiSummary').innerHTML = data.analise_qualitativa.replace(/\n/g, '<br>');
+
+                // Mostrar Resultados
+                document.getElementById('results').classList.remove('hidden');
+
+            } catch (err) {
+                document.getElementById('error').innerText = "Erro: " + err.message;
+                document.getElementById('error').classList.remove('hidden');
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('btnAnalisar').disabled = false;
+                document.getElementById('btnAnalisar').classList.remove('opacity-50');
+            }
+        }
+    </script>
+</body>
+</html>
