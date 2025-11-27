@@ -69,7 +69,7 @@ O projeto possui testes automatizados para garantir a integridade da API.
 Utilizamos pytest com a técnica de **Mocks** para isolar a lógica de negócio e garantir testes rápidos e determinísticos, sem depender de APIs externas.  
 Para rodar os testes localmente:  
 ```bash
-pytest tests/ \-v
+pytest tests/ -v
 ```
 
 ### **Integração Contínua (GitHub Actions)**
