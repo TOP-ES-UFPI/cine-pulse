@@ -8,4 +8,3 @@ joblib
 numpy
 python-dotenv
 aiofiles
-pytest

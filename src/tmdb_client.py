@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
-def buscar_id_filme(nome_filme):
+def buscar_dados_filme(nome_filme):
     """
     Busca o ID de um filme pelo nome na API do TMDB.
     """
@@ -43,7 +43,7 @@ def buscar_reviews_tmdb(nome_filme):
     Função principal: Busca o ID e depois as reviews do filme.
     Retorna uma lista de textos de reviews em Inglês.
     """
-    movie_id = buscar_id_filme(nome_filme)
+    movie_id = buscar_dados_filme(nome_filme)
     
     if not movie_id:
         print(f"❌ Filme '{nome_filme}' não encontrado.")
