@@ -11,6 +11,11 @@ Cine Pulse é uma aplicação full-stack que permite:
 - 🔍 Buscar e filtrar avaliações
 - 📈 Acompanhar distribuição de sentimentos
 
+## 📸 Preview da Interface
+
+![Dashboard do Cine Pulse](backend/docs/{7BE681BC-0330-48BA-B99E-14BCAE835284}.png)
+*Dashboard principal com busca de filmes, cards clicáveis e análise AI*
+
 ## 🚀 Stack Tecnológico
 
 ### Frontend
@@ -25,7 +30,12 @@ Cine Pulse é uma aplicação full-stack que permite:
 - **SQLAlchemy** para ORM
 - **PostgreSQL** como banco de dados
 - **Flask-CORS** para habilitar CORS
-- **Google Gemini 2.0 Flash API** para análise de IA
+- **Google Gemini 2.5 Flash API** para análise de IA
+
+### Design
+- **Tema "Dark Cinematic"** com paleta escura e acentos dourados
+- **Fonte Outfit** do Google Fonts
+- Interface moderna e premium
 
 ## 📦 Instalação
 
@@ -107,25 +117,36 @@ O aplicativo React estará disponível em `http://localhost:3000`
 ## 📱 Funcionalidades Principais
 
 ### 1. Dashboard (Início)
-- Visualize todos os filmes como cards
-- Veja estatísticas: nota média, contagem de avaliações, distribuição de sentimentos
+- **Busca de Filmes**: Campo de pesquisa em tempo real para filtrar filmes por nome
+- Visualize todos os filmes como cards clicáveis
+- Veja estatísticas: nota média (escala 0-10), contagem de avaliações, distribuição de sentimentos
+- **Cards Clicáveis**: Clique em qualquer card para ver detalhes do filme
 - Botão "Gerar Resumo AI" abre modal com análise detalhada
+- Botão "Adicionar Avaliação" com pré-preenchimento do título do filme
 
-### 2. Todas as Avaliações
+### 2. Detalhes do Filme
+- **Nova Página**: Visualize todas as avaliações de um filme específico
+- Lista completa de reviews com notas, sentimentos e spoilers
+- Botões para voltar ao dashboard ou adicionar nova avaliação
+- Sistema de estrelas ajustado (0-10 convertido para escala de 5 estrelas)
+
+### 3. Todas as Avaliações
 - Lista de todas as avaliações individuais
 - Busca por filme, avaliador ou conteúdo
 - Filtros por sentimento (Positivo/Negativo/Neutro)
 - Ordenação (Mais recente, Maior/Menor nota, A-Z)
 - Botões de Editar e Excluir
+- Sistema de estrelas corrigido (ratings de 10 pontos exibidos como 5 estrelas)
 
-### 3. Adicionar/Editar Avaliação
-- Formulário completo com todos os campos
-- Seletor visual de estrelas
+### 4. Adicionar/Editar Avaliação
+- Formulário simplificado (campos de sentimento/confiança são auto-gerados)
+- Seletor visual de estrelas (escala de 1-5)
 - Toggle de spoiler
-- Slider de confiança de predição
+- **UX Melhorado**: Campo de título do filme pode ser pré-preenchido
+- Review ID gerado automaticamente (oculto do usuário)
 - Validação em português
 
-### 4. Análise AI (Gemini 2.0 Flash)
+### 5. Análise AI (Gemini 2.5 Flash)
 A análise gerada pela IA inclui:
 - **Resumo Executivo**: Visão geral da recepção do filme
 - **Análise Quantitativa**: Padrões estatísticos
@@ -184,10 +205,11 @@ aplicacao/
 │   │   └── index.html
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Header.jsx
-│   │   │   ├── MovieReviewsList.jsx
-│   │   │   ├── MovieReviewsPage.jsx
-│   │   │   └── MovieReviewForm.jsx
+│   │   │   ├── Header.jsx              # Barra de navegação
+│   │   │   ├── MovieReviewsList.jsx    # Dashboard com cards de filmes
+│   │   │   ├── MovieDetail.jsx         # Página de detalhes do filme
+│   │   │   ├── MovieReviewsPage.jsx    # Lista de todas as reviews
+│   │   │   └── MovieReviewForm.jsx     # Formulário add/edit
 │   │   ├── services/
 │   │   │   └── api.js
 │   │   ├── App.jsx
