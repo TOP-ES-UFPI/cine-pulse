@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CinePulse AI</title>
-    <!-- Importa Tailwind CSS (Estilo automático) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonte bonita -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -15,104 +13,110 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Container Principal -->
-    <div class="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
+    <div class="w-full max-w-3xl bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
         
-        <!-- Cabeçalho -->
         <div class="text-center mb-10">
             <h1 class="text-5xl font-extrabold mb-2 gradient-text">CinePulse</h1>
-            <p class="text-gray-400 text-lg">Análise de Sentimento</p>
+            <p class="text-gray-400 text-lg">Análise de Sentimento de Reviews</p>
         </div>
 
-        <!-- Área de Busca -->
-        <div class="flex gap-2 mb-8">
-            <input type="text" id="movieInput" placeholder="Digite o nome do filme (ex: Duna Parte 2)..." 
-                class="w-full p-4 rounded-xl bg-gray-700 border-2 border-gray-600 focus:border-pink-500 focus:outline-none text-white text-lg transition-all"
+        <div class="flex gap-2 mb-8 relative">
+            <input type="text" id="movieInput" placeholder="Digite o filme (ex: Your Name)..." 
+                class="w-full p-4 pl-6 rounded-xl bg-gray-700 border-2 border-gray-600 focus:border-pink-500 focus:outline-none text-white text-lg transition-all"
                 onkeypress="handleEnter(event)">
             <button onclick="analisarFilme()" id="btnAnalisar"
-                class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-xl transition-all transform hover:scale-105">
+                class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-xl transition-all transform hover:scale-105 shadow-lg">
                 Analisar
             </button>
         </div>
 
-        <!-- Loading (Escondido inicialmente) -->
+        <!-- Loading -->
         <div id="loading" class="hidden text-center py-10">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
-            <p class="text-gray-300 animate-pulse">Consultando TMDB, rodando Modelo Local e chamando Gemini...</p>
+            <p class="text-gray-300 animate-pulse font-medium">Procurando reviews e fazendo análise...</p>
         </div>
 
-        <!-- Resultados (Escondido inicialmente) -->
-        <div id="results" class="hidden space-y-6 animate-fade-in">
+        <!-- Resultados -->
+        <div id="results" class="hidden space-y-8 animate-fade-in">
             
-            <!-- Título do Filme Encontrado -->
-            <div class="border-b border-gray-700 pb-4">
-                <h2 id="resTitle" class="text-3xl font-bold text-white">Nome do Filme</h2>
+            <!-- Cabeçalho do Filme -->
+            <div class="border-b border-gray-700 pb-6 flex flex-col md:flex-row items-baseline gap-3">
+                <h2 id="resTitle" class="text-4xl font-extrabold text-white tracking-tight">Nome do Filme</h2>
+                <span id="resOriginal" class="text-xl text-gray-400 font-light italic">Original Title (Year)</span>
             </div>
 
             <!-- Grid de Métricas -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Card do Modelo Local -->
-                <div class="bg-gray-700 p-6 rounded-xl border border-gray-600">
-                    <h3 class="text-gray-400 text-sm uppercase tracking-wider mb-2">Aprovação (Modelo Local)</h3>
-                    <div class="flex items-end gap-2">
-                        <span id="scoreVal" class="text-5xl font-bold text-green-400">0%</span>
+                <div class="bg-gray-700/50 p-6 rounded-2xl border border-gray-600 hover:border-pink-500/50 transition-colors">
+                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-3">Aprovação da Audiência</h3>
+                    <div class="flex items-baseline gap-3">
+                        <span id="scoreVal" class="text-6xl font-black text-green-400">0%</span>
+                        <span class="text-gray-500 text-sm">de aprovação</span>
                     </div>
-                    <div class="mt-2 text-sm text-gray-400">
-                        Baseado em <span id="countPos" class="text-white font-bold">0</span> opiniões.
+                    <div class="mt-3 h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                        <div id="scoreBar" class="h-full bg-green-400" style="width: 0%"></div>
                     </div>
                 </div>
 
-                <!-- Card de Stats -->
-                <div class="bg-gray-700 p-6 rounded-xl border border-gray-600 flex flex-col justify-center">
-                    <div class="flex justify-between mb-2">
-                        <span class="text-green-400">Positivas</span>
-                        <span id="valPos" class="font-bold">0</span>
+                <div class="bg-gray-700/50 p-6 rounded-2xl border border-gray-600 flex flex-col justify-center gap-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="text-gray-300 font-medium">Positivas</span>
+                        </div>
+                        <span id="valPos" class="font-bold text-xl text-white">0</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-red-400">Negativas</span>
-                        <span id="valNeg" class="font-bold">0</span>
+                    <div class="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <span class="text-gray-300 font-medium">Negativas</span>
+                        </div>
+                        <span id="valNeg" class="font-bold text-xl text-white">0</span>
                     </div>
                 </div>
             </div>
 
             <!-- Resumo IA -->
-            <div class="bg-gray-700 p-6 rounded-xl border border-purple-500/30 shadow-lg shadow-purple-900/20">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-2xl">✨</span>
-                    <h3 class="text-purple-300 font-bold text-lg">Resumo Inteligente (Gemini)</h3>
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl border border-purple-500/30 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
                 </div>
-                <p id="aiSummary" class="text-gray-200 leading-relaxed text-justify">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-2xl">✨</span>
+                    <h3 class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-bold text-xl">Resumo IA (Gemini)</h3>
+                </div>
+                <p id="aiSummary" class="text-gray-300 leading-relaxed text-justify font-light text-lg">
                     O resumo gerado pela inteligência artificial aparecerá aqui...
                 </p>
             </div>
         </div>
 
-        <!-- Erro -->
-        <div id="error" class="hidden mt-6 p-4 bg-red-900/50 border border-red-500 rounded-lg text-red-200 text-center">
+        <div id="error" class="hidden mt-6 p-4 bg-red-900/50 border border-red-500 rounded-xl text-red-200 text-center font-medium animate-pulse">
         </div>
 
     </div>
 
-    <!-- Script de Lógica -->
     <script>
-        function handleEnter(e) {
-            if (e.key === 'Enter') analisarFilme();
-        }
+        function handleEnter(e) { if (e.key === 'Enter') analisarFilme(); }
 
         async function analisarFilme() {
             const filme = document.getElementById('movieInput').value;
             if (!filme) return;
 
-            // UI State: Loading
+            // Reset UI
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('results').classList.add('hidden');
             document.getElementById('error').classList.add('hidden');
             document.getElementById('btnAnalisar').disabled = true;
-            document.getElementById('btnAnalisar').classList.add('opacity-50');
+            document.getElementById('btnAnalisar').classList.add('opacity-50', 'cursor-not-allowed');
 
             try {
                 const response = await fetch('/analisar', {
@@ -121,31 +125,37 @@
                     body: JSON.stringify({ filme: filme })
                 });
 
-                if (!response.ok) throw new Error('Filme não encontrado ou erro na API.');
+                if (!response.ok) throw new Error('Filme não encontrado.');
 
                 const data = await response.json();
 
-                // Preencher dados
-                document.getElementById('resTitle').innerText = data.filme;
+                // --- ATUALIZAÇÃO DOS METADADOS (TÍTULO E ANO) ---
+                document.getElementById('resTitle').innerText = data.metadados.titulo_br;
                 
-                // Score
+                // Formata: "Original Title (YYYY)"
+                const metaTexto = `${data.metadados.titulo_original} (${data.metadados.data_lancamento})`;
+                document.getElementById('resOriginal').innerText = metaTexto;
+
+                // Score e Cores
                 const score = data.analise_quantitativa.nota_media;
                 const scoreEl = document.getElementById('scoreVal');
-                scoreEl.innerText = score + '%';
+                const barEl = document.getElementById('scoreBar');
                 
-                // Muda cor do score
-                if (score >= 70) scoreEl.className = "text-5xl font-bold text-green-400";
-                else if (score >= 40) scoreEl.className = "text-5xl font-bold text-yellow-400";
-                else scoreEl.className = "text-5xl font-bold text-red-400";
+                scoreEl.innerText = score + '%';
+                barEl.style.width = score + '%';
+                
+                let colorClass = "text-green-400";
+                let barColor = "bg-green-400";
+                if (score < 70) { colorClass = "text-yellow-400"; barColor = "bg-yellow-400"; }
+                if (score < 40) { colorClass = "text-red-400"; barColor = "bg-red-400"; }
+                
+                scoreEl.className = `text-6xl font-black ${colorClass}`;
+                barEl.className = `h-full ${barColor} transition-all duration-1000`;
 
-                document.getElementById('countPos').innerText = data.analise_quantitativa.positivos + data.analise_quantitativa.negativos;
                 document.getElementById('valPos').innerText = data.analise_quantitativa.positivos;
                 document.getElementById('valNeg').innerText = data.analise_quantitativa.negativos;
                 
-                // Resumo IA (Quebras de linha)
                 document.getElementById('aiSummary').innerHTML = data.analise_qualitativa.replace(/\n/g, '<br>');
-
-                // Mostrar Resultados
                 document.getElementById('results').classList.remove('hidden');
 
             } catch (err) {
@@ -154,7 +164,7 @@
             } finally {
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('btnAnalisar').disabled = false;
-                document.getElementById('btnAnalisar').classList.remove('opacity-50');
+                document.getElementById('btnAnalisar').classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
     </script>

@@ -4,80 +4,93 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import joblib
 import os
-from .tmdb_client import buscar_reviews_tmdb
-from .gemini_client import gerar_resumo_ia
+from src.tmdb_client import buscar_reviews_tmdb
+from src.gemini_client import gerar_resumo_ia
 
-# Inicializa a API
-app = FastAPI(
-    title="CinePulse API",
-    description="API de Análise de Sentimento de Filmes (Híbrida)",
-    version="1.0.0"
-)
+# Inicializa a aplicação FastAPI com título e versão
+app = FastAPI(title="CinePulse API", version="2.1.0")
 
-# Serve arquivos estáticos (frontend)
+# Monta o diretório de arquivos estáticos (CSS, JS, imagens)
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
-# --- Configuração do Modelo Local ---
-# Tenta carregar o modelo treinado na PoC
-CAMINHO_MODELO = "models/sentiment_pipeline.joblib"
-pipeline = None
+# --- CARREGAR MODELOS DE ANÁLISE DE SENTIMENTO ---
+# Caminhos para os modelos pré-treinados em inglês e português
+CAMINHO_EN = "models/sentiment_pipeline.joblib"
+CAMINHO_PT = "models/sentiment_pipeline_pt.joblib"
 
-if os.path.exists(CAMINHO_MODELO):
-    try:
-        pipeline = joblib.load(CAMINHO_MODELO)
-        print("Modelo Local carregado com sucesso!")
-    except Exception as e:
-        print(f"Erro ao carregar modelo: {e}")
-else:
-    print("AVISO: Arquivo .joblib não encontrado em 'models/'. A classificação local não funcionará.")
+# Variáveis globais para armazenar os modelos carregados
+pipeline_en = None
+pipeline_pt = None
 
-# --- Estrutura de Dados da Requisição ---
+# Tenta carregar os modelos de arquivo
+try:
+    if os.path.exists(CAMINHO_EN): 
+        pipeline_en = joblib.load(CAMINHO_EN)
+    if os.path.exists(CAMINHO_PT): 
+        pipeline_pt = joblib.load(CAMINHO_PT)
+    print("✅ Modelos carregados!")
+except Exception as e:
+    # Se houver erro ao carregar, exibe um aviso mas não para a aplicação
+    print(f"⚠️ Erro modelos: {e}")
+
+# Define a estrutura de dados esperada nas requisições POST
 class AnaliseRequest(BaseModel):
     filme: str
 
-# --- Rotas da API ---
-
-# Rota Home (Serve o HTML)
+# Rota raiz - retorna a página HTML principal
 @app.get("/")
 def home():
     return FileResponse('src/static/index.html')
 
-
+# Rota principal de análise - recebe o nome do filme e retorna análise completa
 @app.post("/analisar")
 def analisar_filme(request: AnaliseRequest):
-    nome_filme = request.filme
-    print(f"Recebida solicitação para: {nome_filme}")
-
-    # 1. Buscar Reviews no TMDB
-    reviews = buscar_reviews_tmdb(nome_filme)
+    nome_busca = request.filme
     
-    if not reviews:
-        raise HTTPException(status_code=404, detail="Filme não encontrado ou sem reviews suficientes.")
-
-    # 2. Classificação com Modelo Local (Se disponível)
-    resultado_local = {"positivos": 0, "negativos": 0, "nota_media": 0}
+    # 1. BUSCA BILÍNGUE - Obtém reviews em inglês e português + metadados do filme
+    reviews_dict, metadata = buscar_reviews_tmdb(nome_busca)
     
-    if pipeline:
-        print("⚡ Classificando reviews com modelo local...")
-        predicoes = pipeline.predict(reviews)
-        
-        positivos = sum(1 for p in predicoes if p == 'positive')
-        negativos = sum(1 for p in predicoes if p == 'negative')
-        total = positivos + negativos
-        
-        aprovacao = (positivos / total * 100) if total > 0 else 0
-        
-        resultado_local = {
-            "positivos": positivos,
-            "negativos": negativos,
-            "nota_media": round(aprovacao, 1)
-        }
+    # Verifica se encontrou reviews em algum idioma
+    if not reviews_dict or (len(reviews_dict['en']) == 0 and len(reviews_dict['pt']) == 0):
+        raise HTTPException(status_code=404, detail="Filme não encontrado.")
 
-    # 3. Resumo com IA Generativa (Gemini)
-    resumo = gerar_resumo_ia(reviews, nome_filme)
+    # 2. CLASSIFICAÇÃO COM "DUAL ENGINE" - Analisa sentimento em ambos idiomas
+    total_pos = 0  # Contador de reviews positivos
+    total_neg = 0  # Contador de reviews negativos
+    
+    # Classifica reviews em inglês usando o modelo treinado em inglês
+    if pipeline_en and reviews_dict['en']:
+        preds = pipeline_en.predict(reviews_dict['en'])
+        total_pos += sum(1 for p in preds if p == 'positive')
+        total_neg += sum(1 for p in preds if p == 'negative')
 
+    # Classifica reviews em português usando o modelo treinado em português
+    if pipeline_pt and reviews_dict['pt']:
+        preds = pipeline_pt.predict(reviews_dict['pt'])
+        # Trata variações de rótulos do modelo (positive/pos/1 e negative/neg/0)
+        total_pos += sum(1 for p in preds if str(p).lower() in ['positive', 'pos', '1'])
+        total_neg += sum(1 for p in preds if str(p).lower() in ['negative', 'neg', '0'])
+
+    # Calcula a taxa de aprovação em porcentagem
+    total = total_pos + total_neg
+    aprovacao = (total_pos / total * 100) if total > 0 else 0
+
+    # 3. ANÁLISE QUALITATIVA COM IA - Gera resumo contextual usando Gemini
+    # Monta nome oficial com título em português e original para melhor contexto
+    nome_oficial = f"{metadata['titulo_br']} ({metadata['titulo_original']})"
+    # Combina todas as reviews em um único texto para análise
+    todas_reviews = reviews_dict['en'] + reviews_dict['pt']
+    # Gera resumo AI-powered sobre sentimentos e tendências
+    resumo = gerar_resumo_ia(todas_reviews, nome_oficial)
+
+    # Retorna resposta estruturada com análises quantitativa e qualitativa
     return {
-        "filme": nome_filme,
-        "analise_quantitativa": resultado_local,
-        "analise_qualitativa": resumo
+        "filme_buscado": nome_busca,
+        "metadados": metadata,
+        "analise_quantitativa": {
+            "positivos": total_pos,          # Número de reviews positivos
+            "negativos": total_neg,          # Número de reviews negativos
+            "nota_media": round(aprovacao, 1)  # Porcentagem de aprovação (0-100)
+        },
+        "analise_qualitativa": resumo       # Resumo textual gerado por IA
     }
