@@ -24,7 +24,7 @@ def gerar_resumo_ia(reviews_ingles, nome_filme):
         # Limita o contexto para não gastar tokens demais
         reviews_concatenadas = "\n\n".join(reviews_ingles[:15]) 
 
-        # --- O SEGREDO ESTÁ AQUI: PROMPT RESTRITIVO ---
+        # --- PROMPT ---
         prompt = f"""
         Analise as seguintes opiniões de usuários (extraídas do TMDB) sobre o filme "{nome_filme}".
         
