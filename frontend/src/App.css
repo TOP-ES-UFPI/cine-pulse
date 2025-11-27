@@ -1,0 +1,206 @@
+/* Cine Pulse - Dark Cinematic Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #eab308;
+  /* Gold/Amber for Cinema feel */
+  --primary-dark: #ca8a04;
+  --secondary-color: #6366f1;
+  /* Subtle Indigo accent */
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.display-5 {
+  font-size: 2.5rem;
+  background: linear-gradient(to right, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Navbar */
+.navbar {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color) !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Cards */
+.movie-card,
+.review-card {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie-card:hover,
+.review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  color: #fff;
+  font-weight: 600;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #000;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: #000;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: #000;
+}
+
+/* Badges & Pills */
+.badge {
+  padding: 0.5em 0.8em;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.bg-light {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
+/* Inputs */
+.form-control,
+.form-select {
+  background-color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.8rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: #0f172a;
+  border-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
+}
+
+/* Modal */
+.modal-content {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* AI Summary Styles */
+.ai-summary .bg-light {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ai-summary .card {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.ai-summary .list-group-item {
+  color: var(--text-muted);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
