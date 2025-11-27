@@ -40,5 +40,6 @@ jobs:
       env:
         TMDB_API_KEY: "mock_key_tmdb"
         GEMINI_API_KEY: "mock_key_gemini"
+        PYTHONPATH: .
       run: |
         pytest tests/ -v
